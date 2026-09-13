@@ -1,5 +1,14 @@
 # Dexcom G7 Desktop (Windows)
 
+<p align="center">
+  <a href="https://paypal.me/Boricuatec"><img alt="Donate via PayPal" src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white"></a>
+  <img alt="Donate via Bitcoin" src="https://img.shields.io/badge/donate-Bitcoin-f7931a?logo=bitcoin&logoColor=white">
+</p>
+
+<p align="center">
+  BTC: <code>38qF99r4PUsnh46KgLwpBcg7xvjBdgWotK</code>
+</p>
+
 A Windows system-tray port of the [DexcomG7 Omarchy plugin](https://github.com/Boricuatec/DexcomG7)
 — live glucose value, trend arrow, and a click-to-open popup graph, pulled
 straight from the Dexcom Share API. Same unofficial API logic, no Omarchy/
@@ -8,6 +17,10 @@ Hyprland/QML dependency.
 Built for personal use, distributed like the original plugin (source you run
 yourself) — not published to the Microsoft Store or Mac App Store. See the
 notes at the bottom for why.
+
+If this is useful to you and you'd like to contribute, every bit donated
+through the PayPal link or Bitcoin address above goes straight into my son's
+college fund — same as the original plugin. No pressure at all.
 
 ## Disclaimer
 
