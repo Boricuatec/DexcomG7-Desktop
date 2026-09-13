@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+build/
+dist/
+*.spec
+
+# Never commit real credentials or local state
+credentials.env
+settings.json
+session.json

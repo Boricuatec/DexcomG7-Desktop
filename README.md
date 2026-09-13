@@ -1,0 +1,117 @@
+# Dexcom G7 Desktop (Windows)
+
+A Windows system-tray port of the [DexcomG7 Omarchy plugin](https://github.com/Boricuatec/DexcomG7)
+— live glucose value, trend arrow, and a click-to-open popup graph, pulled
+straight from the Dexcom Share API. Same unofficial API logic, no Omarchy/
+Hyprland/QML dependency.
+
+Built for personal use, distributed like the original plugin (source you run
+yourself) — not published to the Microsoft Store or Mac App Store. See the
+notes at the bottom for why.
+
+## Disclaimer
+
+Independent, unofficial project. **Not affiliated with, endorsed by, or
+supported by Dexcom.** It talks to a reverse-engineered API Dexcom has not
+published and can change or break at any time without notice. Not a medical
+device — informational use only. Always follow the official Dexcom app and
+your care team's guidance.
+
+## What it does
+
+- Tray icon shows the current glucose value, colored by range (dark = normal,
+  orange = low/high, red = urgent low/high, gray = stale/error). Hover for a
+  tooltip with the trend, reading age, and a rolling history summary.
+- Click the icon (or the "Open" menu item) for a popup with a graph of recent
+  readings, shaded threshold lines, and 3h/6h/12h/24h range buttons. Click a
+  point on the graph to see its exact value and time.
+- Gear icon in the popup swaps the graph for four threshold sliders (Urgent
+  High / High / Low / Urgent Low); releasing a slider saves it immediately.
+- Adaptive polling around Dexcom's ~5 minute reporting cadence, same as the
+  original plugin — not a fixed interval hammering the API.
+
+## Setup
+
+1. **Python 3.9+** (the [python.org](https://www.python.org/downloads/windows/)
+   Windows installer bundles Tk, which this app needs — no extra install for
+   that part).
+2. Install the two dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+3. Run it:
+   ```
+   python tray_app.py
+   ```
+   On first run it creates `%APPDATA%\DexcomG7\credentials.env` and shows a
+   tray notification. Use the tray icon's **Edit credentials...** menu item
+   to open that file, fill in `DEXCOM_USERNAME`/`DEXCOM_PASSWORD`, save, then
+   **Refresh now**.
+
+   The Dexcom account **must be the sensor wearer's own account** (Share
+   turned on in their own Dexcom G7 app) — a Follow/Caregiver account
+   authenticates fine but returns no readings. See
+   `credentials.env.example` for more gotchas ported from the original
+   plugin's troubleshooting notes.
+
+## Settings
+
+Thresholds and the graph range are editable from the popup (gear icon / range
+buttons) and persist to `%APPDATA%\DexcomG7\settings.json`. Everything else
+the original plugin exposed in Omarchy's bar-customization view — region
+(`server`), display `units`, fallback `pollIntervalSeconds`, `staleAfterMinutes`,
+tooltip toggles, `credentialsPath` — has no GUI here yet; edit
+`settings.json` directly (same keys as the plugin's `manifest.json`) and
+**Refresh now**. Shout if you want a proper settings dialog for these instead.
+
+## Packaging as a standalone .exe (optional)
+
+Not done yet, but straightforward when you want it:
+```
+pip install pyinstaller
+pyinstaller --onefile --windowed --name "Dexcom G7" tray_app.py
+```
+
+## Testing status
+
+Built and logic-tested on Linux (no Windows box available in this dev
+environment): `dexcom_client.py`'s login/polling/classification logic is
+pure stdlib and was verified here against mocked HTTP responses, and
+`icon_render.py`'s icon generation was verified visually. **The tray icon +
+popup window (pystray/tkinter) has not been run on real Windows yet** —
+please smoke-test `python tray_app.py` on your PC before relying on it.
+Likely rough edges: font fallback if neither Segoe UI nor Arial Bold is
+found, and the exact tray icon size Windows prefers at your display scaling.
+
+## Relationship to the Omarchy plugin
+
+`dexcom_client.py` is a straight refactor of the plugin's
+`scripts/dexcom-status` (CLI script → importable module returning dicts
+instead of printing JSON) — same login flow, application IDs, and trend/
+classification logic. `popup.py`'s graph and threshold sliders are a
+tkinter port of `Dexcom.qml`'s Canvas/Slider sections (same scaling math,
+same colors). The Omarchy plugin's `qs.Ui` bar-widget APIs
+(`WidgetButton`/`Panel`/`KeyboardPanel`/`omarchy bar set`) have no Windows
+equivalent, so the whole UI shell (`tray_app.py`, `popup.py`,
+`icon_render.py`, `settings_store.py`) is new code, not a port.
+
+## Why this isn't on the Microsoft Store / Mac App Store
+
+This was scoped down from an app-store-sellable product to a personal tool
+you run yourself, on purpose:
+
+- It depends on Dexcom's **unofficial** Share API (the same one the Follow
+  app uses), not a published developer/partner API. Fine for a free tool
+  you run yourself; commercializing it through store review raises Dexcom
+  ToS and app-review risk that isn't worth it for a family tool.
+- Store review for health-adjacent apps is stricter, and Dexcom could
+  change or block this endpoint at any time with no recourse for someone
+  who paid for the app.
+
+If you ever do want real commercial distribution, the legitimate path is
+Dexcom's official developer/partner API program, which is a different (and
+slower) undertaking than this.
+
+## License
+
+MIT, matching the original plugin.
