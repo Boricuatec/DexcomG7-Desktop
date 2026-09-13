@@ -42,6 +42,10 @@ your care team's guidance.
   High / High / Low / Urgent Low); releasing a slider saves it immediately.
 - Adaptive polling around Dexcom's ~5 minute reporting cadence, same as the
   original plugin — not a fixed interval hammering the API.
+- **Settings...** menu item for region, units, fallback poll interval, stale
+  timeout, credentials path, and tooltip toggles.
+- **Start with Windows** checkbox right in the tray menu — adds/removes a
+  per-user registry Run entry, no installer needed.
 
 ## Setup
 
@@ -69,13 +73,16 @@ your care team's guidance.
 
 ## Settings
 
-Thresholds and the graph range are editable from the popup (gear icon / range
-buttons) and persist to `%APPDATA%\DexcomG7\settings.json`. Everything else
-the original plugin exposed in Omarchy's bar-customization view — region
-(`server`), display `units`, fallback `pollIntervalSeconds`, `staleAfterMinutes`,
-tooltip toggles, `credentialsPath` — has no GUI here yet; edit
-`settings.json` directly (same keys as the plugin's `manifest.json`) and
-**Refresh now**. Shout if you want a proper settings dialog for these instead.
+- Thresholds and the graph range: edit from the popup (gear icon / range
+  buttons).
+- Region, units, fallback poll interval, stale timeout, credentials path,
+  and tooltip toggles: tray menu → **Settings...**.
+- Start with Windows: tray menu checkbox, no installer needed (writes a
+  per-user `HKCU\...\Run` registry entry — see `autostart.py`).
+
+All of it persists to `%APPDATA%\DexcomG7\settings.json` (same keys as the
+original plugin's `manifest.json`), so you can also hand-edit that file if
+you'd rather not use the dialog.
 
 ## Packaging as a standalone .exe (optional)
 
@@ -95,6 +102,10 @@ popup window (pystray/tkinter) has not been run on real Windows yet** —
 please smoke-test `python tray_app.py` on your PC before relying on it.
 Likely rough edges: font fallback if neither Segoe UI nor Arial Bold is
 found, and the exact tray icon size Windows prefers at your display scaling.
+The settings dialog (`settings_dialog.py`) and "Start with Windows"
+(`autostart.py`) are equally untested on real Windows — they compile and the
+autostart module's non-Windows no-op path is verified, but the registry
+write and the dialog's widgets themselves need a live smoke test.
 
 ## Relationship to the Omarchy plugin
 

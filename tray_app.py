@@ -15,10 +15,12 @@ import webbrowser
 
 import pystray
 
+import autostart
 import dexcom_client
 import icon_render
 import settings_store
 from popup import Popup
+from settings_dialog import SettingsDialog
 
 APP_NAME = "Dexcom G7"
 
@@ -39,6 +41,7 @@ class TrayApp:
             on_range_change=self.on_range_change,
             on_threshold_change=self.on_threshold_change,
         )
+        self.settings_dialog = None
 
         initial_image = icon_render.make_icon_image("…", "unknown")
         self.icon = pystray.Icon(
@@ -48,8 +51,15 @@ class TrayApp:
             menu=pystray.Menu(
                 pystray.MenuItem("Open", self.on_open, default=True),
                 pystray.MenuItem("Refresh now", lambda icon, item: self.request_refresh()),
+                pystray.MenuItem("Settings…", lambda icon, item: self.on_open_settings()),
                 pystray.MenuItem("Edit credentials…", lambda icon, item: self.on_edit_credentials()),
                 pystray.MenuItem("Open settings folder", lambda icon, item: self.on_open_settings_folder()),
+                pystray.MenuItem(
+                    "Start with Windows",
+                    lambda icon, item: self.on_toggle_autostart(),
+                    checked=lambda item: autostart.is_enabled(),
+                    visible=autostart.is_supported(),
+                ),
                 pystray.MenuItem("Quit", lambda icon, item: self.on_quit()),
             ),
         )
@@ -143,6 +153,33 @@ class TrayApp:
                 subprocess.run(["xdg-open", path], check=False)
         except OSError:
             webbrowser.open(f"file://{path}")
+
+    def on_open_settings(self):
+        self.root.after(0, self._show_settings_dialog)
+
+    def _show_settings_dialog(self):
+        if self.settings_dialog is not None and self.settings_dialog.winfo_exists():
+            self.settings_dialog.lift()
+            return
+        with self.lock:
+            settings_snapshot = dict(self.settings)
+        self.settings_dialog = SettingsDialog(self.root, settings_snapshot, on_save=self._on_settings_saved)
+
+    def _on_settings_saved(self, updated_settings):
+        with self.lock:
+            self.settings.update(updated_settings)
+            settings_store.save(self.settings)
+        self.request_refresh()
+
+    def on_toggle_autostart(self):
+        if autostart.is_enabled():
+            autostart.disable()
+        else:
+            autostart.enable()
+        try:
+            self.icon.update_menu()
+        except Exception:
+            pass
 
     def on_open_settings_folder(self):
         path = dexcom_client.app_data_dir()
