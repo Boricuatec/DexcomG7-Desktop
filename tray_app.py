@@ -65,9 +65,11 @@ class TrayApp:
         )
 
         credentials_path = settings_store.ensure_credentials_template()
-        if not dexcom_client.load_credentials(credentials_path):
+        creds = dexcom_client.load_credentials(credentials_path)
+        if not creds or dexcom_client.credentials_look_unconfigured(creds):
             self._notify(
-                "Edit credentials.env with your Dexcom Share login, then Refresh now.",
+                "Edit credentials.env with your real Dexcom Share login, then Refresh now. "
+                "The app won't attempt to log in until you do.",
                 title=APP_NAME,
             )
 

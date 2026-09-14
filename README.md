@@ -65,6 +65,14 @@ your care team's guidance.
    to open that file, fill in `DEXCOM_USERNAME`/`DEXCOM_PASSWORD`, save, then
    **Refresh now**.
 
+   **The app will not attempt to log in to Dexcom while the file still has
+   its example values** — whole or half-edited (e.g. a real username saved
+   next to the still-placeholder password). It just shows a gray icon with
+   a tooltip explaining why, rather than sending a doomed-to-fail login to
+   Dexcom's servers. That matters because repeated failed logins against a
+   *real* account can trigger Dexcom's rate-limit/lockout protection — see
+   `dexcom_client.credentials_look_unconfigured`.
+
    The Dexcom account **must be the sensor wearer's own account** (Share
    turned on in their own Dexcom G7 app) — a Follow/Caregiver account
    authenticates fine but returns no readings. See

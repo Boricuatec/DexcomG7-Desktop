@@ -55,6 +55,17 @@ TREND_WORDS = {
 
 MMOL_L_PER_MGDL = 0.0555
 
+# The exact placeholder values written into a freshly-created credentials
+# file (see settings_store.ensure_credentials_template, which imports these
+# same constants so the two can never drift apart). Attempting a real login
+# with these - or with only one of them replaced, e.g. a real username paired
+# with the still-placeholder password - would send a failed-login request to
+# Dexcom for whatever real account name is present, risking the account
+# lockout the original plugin's troubleshooting notes warn about. poll()
+# refuses to even attempt login while either field still matches.
+PLACEHOLDER_USERNAME = "you@example.com"
+PLACEHOLDER_PASSWORD = "your-dexcom-password"
+
 READING_INTERVAL_SECONDS = 300
 PUBLISH_BUFFER_SECONDS = 20
 MIN_POLL_SECONDS = 15
@@ -114,6 +125,14 @@ def load_credentials(path):
     except FileNotFoundError:
         pass
     return values
+
+
+def credentials_look_unconfigured(creds):
+    """True if either field is still the unedited template placeholder."""
+    return (
+        creds.get("DEXCOM_USERNAME") == PLACEHOLDER_USERNAME
+        or creds.get("DEXCOM_PASSWORD") == PLACEHOLDER_PASSWORD
+    )
 
 
 def server_base(server):
@@ -298,6 +317,15 @@ def poll(settings):
             "ok": False,
             "error": "no_credentials",
             "tooltip": f"Create {creds_path} - see README",
+        }
+    if credentials_look_unconfigured(creds):
+        return {
+            "ok": False,
+            "error": "placeholder_credentials",
+            "tooltip": (
+                f"{creds_path} still has the example username/password - "
+                "edit it with your real Dexcom Share login, then Refresh now."
+            ),
         }
 
     window = max(15, graph_minutes, history_minutes if show_history else 0)

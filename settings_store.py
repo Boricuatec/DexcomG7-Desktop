@@ -67,9 +67,12 @@ def ensure_credentials_template():
             "# and not a Caregiver account watching a Dependent. Both of those\n"
             "# authenticate fine but return an empty reading list.\n"
             "#\n"
-            "# Fill in real values below and keep this file private.\n"
+            "# Fill in real values below and keep this file private. The app\n"
+            "# will refuse to poll (never sends a login attempt to Dexcom) as\n"
+            "# long as either value below is still exactly what's here now -\n"
+            "# see dexcom_client.credentials_look_unconfigured.\n"
             "\n"
-            "DEXCOM_USERNAME=you@example.com\n"
-            "DEXCOM_PASSWORD=your-dexcom-password\n"
+            f"DEXCOM_USERNAME={dexcom_client.PLACEHOLDER_USERNAME}\n"
+            f"DEXCOM_PASSWORD={dexcom_client.PLACEHOLDER_PASSWORD}\n"
         )
     return path
