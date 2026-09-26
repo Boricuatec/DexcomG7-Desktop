@@ -47,6 +47,12 @@ your care team's guidance.
 - **Start with Windows** checkbox right in the tray menu — adds/removes a
   per-user registry Run entry, no installer needed.
 
+## Screenshot
+
+<p align="center">
+  <img alt="Dexcom G7 popup showing glucose graph and threshold lines" src="docs/popup.png" width="320">
+</p>
+
 ## Setup
 
 1. **Python 3.9+** (the [python.org](https://www.python.org/downloads/windows/)
